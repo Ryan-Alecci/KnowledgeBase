@@ -1,0 +1,32 @@
+import requests
+
+# Replace these with your actual Cisco ISE server details and authentication credentials
+ise_base_url = "https://your-ise-server/api/v1"
+client_id = "your-client-id"
+client_secret = "your-client-secret"
+
+# Authenticate to get an access token
+auth_url = f"{ise_base_url}/ers/token"
+auth_payload = {
+    "grant_type": "client_credentials",
+    "client_id": client_id,
+    "client_secret": client_secret
+}
+auth_response = requests.post(auth_url, data=auth_payload)
+access_token = auth_response.json()["access_token"]
+
+# Retrieve policy elements
+policy_elements_url = f"{ise_base_url}/policy/policyElement"
+headers = {
+    "Authorization": f"Bearer {access_token}"
+}
+response = requests.get(policy_elements_url, headers=headers)
+
+if response.status_code == 200:
+    policy_elements = response.json()["SearchResult"]["resources"]
+    for policy_element in policy_elements:
+        print(f"Policy Element Name: {policy_element['name']}")
+        # Print more policy element details as needed
+        print("-" * 30)
+else:
+    print("Failed to retrieve policy elements:", response.text)
