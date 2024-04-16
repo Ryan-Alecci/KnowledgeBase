@@ -1,0 +1,30 @@
+Profiling is enable in the deployment menu > click the node > general settings > Policy Service > Enable profiling service
+	Profiling probes are enable the the same area except choose Profiling Configuration instead of general settings.
+		Too many probes to cover in detail. Cisco recommends, in order, RADIUS, AD, DHCP, DNS, NMAP
+			HTTP Probe is useful in a guest setting to gather data from browsers when they are redirected to ISE.
+		
+profiling notes
+- Custom conditions only. Adding attributes in the profile wont work due to EndPoint Attribute Filter in profiling settings.
+- Create a profile and assign it to a logical profile for smaller auth list in policy sets.
+- Use DNS probe to veryify DNS server has info on the devices
+- On the NAD use "mab request format attribute 32 vlan access-vlan" this shares the VLAN of MAB devices in the RADIUS messages.
+- Parent policies are policies an ednpoint must hit prior to being classified/moved to the associate profile.
+	Create new profile. Select "No, use existing Identity Group hierarchy" & Select a parent policy.
+	That parent policy must have conditions that the new endpoint can hit before it will change to the associated one.
+
+
+
+Example of parent policies:
+Parent profile = Approved_devices
+- Use DNS/AD conditions to findout if its existed or joined to the network
+
+
+Actual Profile = Linux-Workstations
+- Parent policy = Aproved_devices
+-- It must hit parent policy first before it considers the Linux-Workstation profile
+--- Condition, is NAS-Identifier = 100
+
+Order of operations
+Device hits Approved_Devices (Has a FQDN or AD entry)
+Profling moves onto check profiles that have Approved_devices as the parent
+Profling sees other attributes (eg.NAS-Identifier = 100) and chooses the profile with the highest certainty factor it matches
